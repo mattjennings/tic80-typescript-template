@@ -1,13 +1,37 @@
 import fs from "node:fs";
 import path from "node:path";
 
+const ASSET_SECTIONS = ["TILES", "SPRITES", "MAP", "WAVES", "SFX", "PALETTE"];
+/**
+ * Parses out the inline asset comments from a cart
+ */
+const ASSET_SECTION_RE = new RegExp(
+  `^//\\s*<(${ASSET_SECTIONS.join("|")})>[\\s\\S]*?^//\\s*</\\1>\\s*$`,
+  "gm",
+);
+
+function composeBannerFooter(existing, extra, sep = "\n") {
+  return async function (...args) {
+    const prev =
+      typeof existing === "function" ? await existing(...args) : existing || "";
+    return [prev, extra].filter(Boolean).join(sep);
+  };
+}
+
+function makeHeader({ title, author, desc }) {
+  return `\
+// title:  ${title}
+// author: ${author}
+// desc:   ${desc}
+// script: js
+`;
+}
+
 export function tic80(options = {}) {
   const {
     build = "build/cart.js",
     assets = "src/assets.js",
-    sync = true,
     watchInterval = 100,
-
     header = {
       title: "game title",
       author: "game developer",
@@ -17,127 +41,58 @@ export function tic80(options = {}) {
 
   const buildPath = path.resolve(build);
   const assetsPath = path.resolve(assets);
+  const headerText = makeHeader(header);
+  let started = false;
 
-  let watcherStarted = false;
+  /**
+   * Copies the inline asset contents from the cart into the assets.js source file.
+   * This is so that when you make changes to sprites etc. inside the TIC-80 editor the
+   * changes don't get lost (as it simply modifies the build/cart.js file).
+   */
+  function syncAssets() {
+    if (!fs.existsSync(buildPath)) return;
+    const matches = fs.readFileSync(buildPath, "utf8").match(ASSET_SECTION_RE);
+    if (!matches?.length) return; // partial write or empty cart
+    fs.writeFileSync(
+      assetsPath,
+      `// This file is overwritten when TIC-80 saves the cart.
+// Do not edit directly!
+
+${matches.join("\n\n")}
+`,
+    );
+  }
 
   return {
     name: "tic80",
 
     outputOptions(output) {
       output.file ??= buildPath;
-
-      const banner = createHeader(header);
-
-      const existingBanner = output.banner;
-      const existingFooter = output.footer;
-
-      output.banner = async (...args) => {
-        const value =
-          typeof existingBanner === "function"
-            ? await existingBanner(...args)
-            : existingBanner || "";
-
-        return [banner, value].filter(Boolean).join("\n");
-      };
-
-      output.footer = async (...args) => {
-        const value =
-          typeof existingFooter === "function"
-            ? await existingFooter(...args)
-            : existingFooter || "";
-
-        const assetSource = fs.existsSync(assetsPath)
-          ? fs.readFileSync(assetsPath, "utf8")
-          : "";
-
-        return [value, assetSource].filter(Boolean).join("\n");
-      };
-
+      output.banner = composeBannerFooter(output.banner, headerText);
+      output.footer = composeBannerFooter(
+        output.footer,
+        fs.existsSync(assetsPath) ? fs.readFileSync(assetsPath, "utf8") : "",
+      );
       return output;
     },
 
+    /**
+     * Set up asset syncing
+     */
     buildStart() {
-      if (!sync) {
-        return;
+      if (started || !this.meta.watchMode) return;
+      started = true;
+
+      if (!fs.existsSync(buildPath)) {
+        fs.mkdirSync(path.dirname(buildPath), { recursive: true });
+        fs.writeFileSync(buildPath, headerText);
       }
 
-      if (watcherStarted) {
-        return;
-      }
-
-      watcherStarted = true;
-
-      ensureCartExists(buildPath, header);
-
-      fs.watchFile(buildPath, { interval: watchInterval }, () => syncAssets());
+      fs.watchFile(buildPath, { interval: watchInterval }, syncAssets);
     },
 
     closeWatcher() {
-      if (sync) {
-        fs.unwatchFile(buildPath);
-      }
+      if (started) fs.unwatchFile(buildPath);
     },
   };
-
-  function syncAssets() {
-    if (!fs.existsSync(buildPath)) {
-      return;
-    }
-
-    const source = fs.readFileSync(buildPath, "utf8");
-    const sections = ["TILES", "SPRITES", "MAP", "WAVES", "SFX", "PALETTE"];
-
-    const extracted = sections
-      .map((section) => extractSection(source, section))
-      .filter(Boolean);
-
-    // Ignore incomplete/initial cart writes
-    if (extracted.length === 0) {
-      return;
-    }
-
-    const output = `\
-// This file is overwritten when TIC-80 saves the cart.
-// Do not edit directly!
-
-${extracted.join("\n\n")}
-`;
-
-    fs.writeFileSync(assetsPath, output);
-  }
-}
-
-function createHeader(header) {
-  return `\
-// title:  ${header.title}
-// author: ${header.author}
-// desc:   ${header.desc}
-// script: js
-`;
-}
-
-function ensureCartExists(file, header) {
-  if (fs.existsSync(file)) {
-    return;
-  }
-
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, createHeader(header));
-}
-
-function extractSection(source, name) {
-  const escaped = escapeRegex(name);
-
-  const regex = new RegExp(
-    `(^//\\\\s*<${escaped}>\\\\s*$[\\\\s\\\\S]*?^//\\\\s*<\\\\/${escaped}>\\\\s*$)`,
-    "m",
-  );
-
-  const match = source.match(regex);
-
-  return match?.[1] ?? null;
-}
-
-function escapeRegex(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

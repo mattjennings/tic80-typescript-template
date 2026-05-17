@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ASSET_SECTIONS = ["TILES", "SPRITES", "MAP", "WAVES", "SFX", "PALETTE"];
+const ASSET_PREAMBLE =
+  "// DO NOT EDIT! This file is generated on TIC-80 cart saves.";
 /**
  * Parses out the inline asset comments from a cart
  */
@@ -9,23 +11,6 @@ const ASSET_SECTION_RE = new RegExp(
   `^//\\s*<(${ASSET_SECTIONS.join("|")})>[\\s\\S]*?^//\\s*</\\1>\\s*$`,
   "gm",
 );
-
-function composeBannerFooter(existing, extra, sep = "\n") {
-  return async function (...args) {
-    const prev =
-      typeof existing === "function" ? await existing(...args) : existing || "";
-    return [prev, extra].filter(Boolean).join(sep);
-  };
-}
-
-function makeHeader({ title, author, desc }) {
-  return `\
-// title:  ${title}
-// author: ${author}
-// desc:   ${desc}
-// script: js
-`;
-}
 
 export function tic80(options = {}) {
   const {
@@ -41,7 +26,13 @@ export function tic80(options = {}) {
 
   const buildPath = path.resolve(build);
   const assetsPath = path.resolve(assets);
-  const headerText = makeHeader(header);
+  const headerText = `\
+// title:  ${header.title}
+// author: ${header.author}
+// desc:   ${header.desc}
+// script: js
+`;
+
   let started = false;
 
   /**
@@ -55,8 +46,8 @@ export function tic80(options = {}) {
     if (!matches?.length) return; // partial write or empty cart
     fs.writeFileSync(
       assetsPath,
-      `// This file is overwritten when TIC-80 saves the cart.
-// Do not edit directly!
+      `\
+${ASSET_PREAMBLE}
 
 ${matches.join("\n\n")}
 `,
@@ -68,12 +59,18 @@ ${matches.join("\n\n")}
 
     outputOptions(output) {
       output.file ??= buildPath;
-      output.banner = composeBannerFooter(output.banner, headerText);
-      output.footer = composeBannerFooter(
-        output.footer,
-        fs.existsSync(assetsPath) ? fs.readFileSync(assetsPath, "utf8") : "",
-      );
       return output;
+    },
+
+    generateBundle(_, bundle) {
+      const assets = fs.existsSync(assetsPath)
+        ? fs.readFileSync(assetsPath, "utf8").replace(ASSET_PREAMBLE, "")
+        : "";
+      for (const chunk of Object.values(bundle)) {
+        if (chunk.type === "chunk") {
+          chunk.code = headerText + chunk.code + (assets ? "\n" + assets : "");
+        }
+      }
     },
 
     /**

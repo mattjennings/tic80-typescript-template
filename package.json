@@ -1,0 +1,21 @@
+{
+  "name": "tic-ts",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "tic80": "tic80",
+    "start": "concurrently \"pnpm run build:watch\" \"sleep 1 && pnpm run start:tic80\"",
+    "start:tic80": "tic80 --skip --keepcmd --fs=. --cmd 'load game.js & load build/output.js code & run'",
+    "build": "rolldown -c rolldown.config.js",
+    "build:watch": "rolldown -c rolldown.config.js --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "packageManager": "pnpm@11.1.2+sha512.415a1cc25974731e75455c1468371be74c5aa5fb7621b50d4056d222451609f11412f23fd602e6169f1e060466641f798597e1be961a10688836a67b16569499",
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "rolldown": "^1.0.1"
+  }
+}

@@ -2,7 +2,7 @@ export {};
 
 declare global {
   function BOOT(): void;
-  function TIC(d: number): void;
+  function TIC(): void;
 
   /**
    * Allows you to read the status of one of the buttons attached to TIC. The function returns true if the key with the supplied id is currently in the pressed state. It remains true for as long as the key is held down. If you want to test if a key was just pressed, use btnp instead.

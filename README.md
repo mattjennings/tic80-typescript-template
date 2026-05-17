@@ -35,6 +35,13 @@ pnpm start
 
 Tic80 is started in the root directory with `cart.js` - this allows you to use the editor to modify sprites etc. It then loads `build/output.js` which is the compiled js from rolldown of your typescript source.
 
-## Building for production
+## Exporting
 
-TODO but you can probably figure it out
+The following scripts will export for the respective platform into `exports/`
+
+```
+pnpm run export:html
+pnpm run export:mac
+pnpm run export:linux
+pnpm run export:win
+```

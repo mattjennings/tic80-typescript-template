@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "tic80": "tic80",
-    "start": "concurrently \"pnpm run build:watch\" \"sleep 1 && pnpm run start:tic80\"",
-    "start:tic80": "tic80 --skip --keepcmd --fs=. --cmd 'load cart.js & load build/output.js code & run'",
+    "tic80": "tic80 --skip --keepcmd --fs=.",
+    "tic80:run": "pnpm run tic80 --cmd \"load build/cart.js & run\"",
+    "start": "concurrently --kill-others \"pnpm run build:watch\" \"sleep 1 && pnpm run tic80:run\"",
     "build": "rolldown -c rolldown.config.js",
-    "build:watch": "rolldown -c rolldown.config.js --watch"
+    "build:watch": "rolldown -c rolldown.config.js --watch",
+    "export:linux": "pnpm run tic80 --cmd \"load build/cart.js & cd export & export linux linux & exit\"",
+    "export:mac": "pnpm run tic80 --cmd \"load build/cart.js & cd export & export mac mac & exit\"",
+    "export:win": "pnpm run tic80 --cmd \"load build/cart.js & cd export & export win win & exit\"",
+    "export:html": "pnpm run tic80 --cmd \"load build/cart.js & cd export & export html html & exit\""
   },
   "keywords": [],
   "author": "",

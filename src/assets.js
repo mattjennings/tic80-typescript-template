@@ -1,4 +1,6 @@
-// script: js
+// This file is overwritten when TIC-80 saves the cart.
+// Do not edit directly!
+
 // <TILES>
 // 001:eccccccccc888888caaaaaaaca888888cacccccccacc0ccccacc0ccccacc0ccc
 // 002:ccccceee8888cceeaaaa0cee888a0ceeccca0ccc0cca0c0c0cca0c0c0cca0c0c
@@ -15,10 +17,6 @@
 // 001:0123456789abcdeffedcba9876543210
 // 002:0123456789abcdef0123456789abcdef
 // </WAVES>
-
-// <SFX>
-// 000:000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000304000000000
-// </SFX>
 
 // <PALETTE>
 // 000:1a1c2c5d275db13e53ef7d57ffcd75a7f07038b76425717929366f3b5dc941a6f673eff7f4f4f494b0c2566c86333c57

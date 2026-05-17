@@ -2,7 +2,7 @@
 
 Template for getting started with TIC-80 using Typescript and Rolldown.
 
-Starting files and Typescript types taken from [https://github.com/scambier/tic80-typescript](tic80-typescript).
+Starting files and Typescript types taken from [tic80-typescript](https://github.com/scambier/tic80-typescript).
 
 ## Getting Started
 

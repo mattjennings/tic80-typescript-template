@@ -2,13 +2,27 @@ import { defineConfig } from "rolldown";
 import fs from "fs";
 import path from "path";
 
+const PATHS = {
+  entry: "src/main.ts",
+  assets: "src/assets.js",
+  build: "build",
+};
+
 export default defineConfig(({ watch }) => {
   return {
-    input: "src/main.ts",
+    input: PATHS.entry,
     plugins: [syncCart(watch)],
     output: {
-      file: "cart/code.js",
-      banner: "// script: js",
+      file: path.join(PATHS.build, "cart.js"),
+      banner: `\
+// title:  game title
+// author: game developer
+// desc:   short description
+// script: js
+`,
+      footer: () => {
+        return fs.readFileSync(PATHS.assets, "utf8");
+      },
     },
   };
 });
@@ -18,8 +32,8 @@ function syncCart(watch) {
     return;
   }
 
-  const cartPath = path.join(process.cwd(), "cart/_cart.js");
-  const assetsPath = path.join(process.cwd(), "cart/assets.js");
+  const cartPath = path.join(process.cwd(), PATHS.build, "cart.js");
+  const assetsPath = path.join(process.cwd(), PATHS.assets);
 
   if (!fs.existsSync(cartPath)) {
     fs.writeFileSync(cartPath, "// script: js");
@@ -33,7 +47,7 @@ function syncCart(watch) {
     function extractAssets() {
       const source = fs.readFileSync(cartPath, "utf8");
       const assets = `\
-// script: js
+// This file is overwritten when TIC-80 saves the cart. Do not edit directly!
 ${extractSection(source, "TILES")}
 
 ${extractSection(source, "WAVES")}

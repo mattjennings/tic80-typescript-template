@@ -1,1 +1,0 @@
-load cart/code.js code & load cart/assets.js palette & load cart/assets.js tiles & load cart/assets.js sprites & load cart/assets.js sfx & load cart/assets.js music & load cart/assets.js flags & load cart/assets.js screen

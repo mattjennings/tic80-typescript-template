@@ -5,7 +5,7 @@
   "scripts": {
     "tic80": "tic80",
     "start": "concurrently \"pnpm run build:watch\" \"sleep 1 && pnpm run start:tic80\"",
-    "start:tic80": "tic80 --skip --keepcmd --fs=. --cmd 'load game.js & load build/output.js code & run'",
+    "start:tic80": "tic80 --skip --keepcmd --fs=. --cmd 'load cart.js & load build/output.js code & run'",
     "build": "rolldown -c rolldown.config.js",
     "build:watch": "rolldown -c rolldown.config.js --watch"
   },

@@ -33,8 +33,7 @@ pnpm start
 
 ## How does it work?
 
-Tic80 is started in the root directory with `game.js` - this allows you to use the editor to modify sprites etc. It then loads `build/output.js` which
-is the compiled js from rolldown of your typescript source.
+Tic80 is started in the root directory with `cart.js` - this allows you to use the editor to modify sprites etc. It then loads `build/output.js` which is the compiled js from rolldown of your typescript source.
 
 ## Building for production
 

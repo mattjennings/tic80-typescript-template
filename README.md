@@ -23,7 +23,7 @@ pnpm install
 
 ### Set tic80 binary
 
-Open `package.json` and modify the `tic80` script to be the location of your tic80 binary
+Open `package.json` and modify the `tic80` script to execute the location of your tic80 binary
 
 ### Start
 
@@ -33,7 +33,10 @@ pnpm start
 
 ## How does it work?
 
-Tic80 is started in the root directory with `cart.js` - this allows you to use the editor to modify sprites etc. It then loads `build/output.js` which is the compiled js from rolldown of your typescript source.
+Rolldown outputs `build/cart.js` which is a fully working cart that can be loaded by TIC-80.
+
+During `pnpm start`, if TIC-80 saves the cart, it extracts the inline asset comments to `src/assets.js`. The comments from this file
+are included in the `build/cart.js`.
 
 ## Exporting
 

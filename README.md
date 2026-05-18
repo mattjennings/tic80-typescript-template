@@ -35,8 +35,7 @@ pnpm start
 
 Rolldown outputs `build/cart.js` which is a fully working cart that can be loaded by TIC-80.
 
-During `pnpm start`, if TIC-80 saves the cart, it extracts the inline asset comments to `src/assets.js`. The comments from this file
-are included in the `build/cart.js`.
+During `pnpm start`, if TIC-80 saves the cart, it extracts the inline asset comments to `assets.txt`, which then get included in `build/cart.js` on the next build.
 
 ## Exporting
 

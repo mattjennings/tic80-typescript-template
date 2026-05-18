@@ -1,11 +1,11 @@
-import { printh } from "./helpers";
+import "./polyfills/console";
 
 let t = 0;
 let x = 96;
 let y = 24;
 
 globalThis.BOOT = function BOOT() {
-  printh("Module import works!");
+  console.log("boot");
 };
 
 globalThis.TIC = function TIC() {

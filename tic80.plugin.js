@@ -4,6 +4,7 @@ import path from "node:path";
 const ASSET_SECTIONS = ["TILES", "SPRITES", "MAP", "WAVES", "SFX", "PALETTE"];
 const ASSET_PREAMBLE =
   "// DO NOT EDIT! This file is generated on TIC-80 cart saves.";
+
 /**
  * Parses out the inline asset comments from a cart
  */
@@ -15,7 +16,7 @@ const ASSET_SECTION_RE = new RegExp(
 export function tic80(options = {}) {
   const {
     build = "build/cart.js",
-    assets = "src/assets.js",
+    assets = "assets.txt",
     watchInterval = 100,
     header = {
       title: "game title",
@@ -36,7 +37,7 @@ export function tic80(options = {}) {
   let started = false;
 
   /**
-   * Copies the inline asset contents from the cart into the assets.js source file.
+   * Copies the inline asset contents from the cart into the assets.txt file.
    * This is so that when you make changes to sprites etc. inside the TIC-80 editor the
    * changes don't get lost (as it simply modifies the build/cart.js file).
    */
@@ -44,14 +45,8 @@ export function tic80(options = {}) {
     if (!fs.existsSync(buildPath)) return;
     const matches = fs.readFileSync(buildPath, "utf8").match(ASSET_SECTION_RE);
     if (!matches?.length) return; // partial write or empty cart
-    fs.writeFileSync(
-      assetsPath,
-      `\
-${ASSET_PREAMBLE}
-
-${matches.join("\n\n")}
-`,
-    );
+    const content = matches.join("\n\n");
+    fs.writeFileSync(assetsPath, `${ASSET_PREAMBLE}\n\n${content}\n`);
   }
 
   return {
@@ -93,3 +88,4 @@ ${matches.join("\n\n")}
     },
   };
 }
+

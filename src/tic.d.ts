@@ -1,8 +1,36 @@
 export {};
 
 declare global {
+  /**
+   * Startup Function.
+   */
   function BOOT(): void;
+
+  /**
+   * TIC is the ‘main’ function and must be present in every program.
+   * It takes no parameters and is called sixty times per second (60fps).
+   */
   function TIC(): void;
+
+  /**
+   * It draws on a separate layer and can be used together with SCN() to create separate background or foreground layers and other visual effects.
+   */
+  function OVR(): void;
+
+  /**
+   * SCN allows you to execute code between the drawing of each scan line, for example, to manipulate the palette.
+   */
+  function SCN(line: number): void;
+
+  /**
+   * Game Menu handler.
+   */
+  function MENU(index: number): void;
+
+  /**
+   * Allows you to execute code between the drawing of each fullscreen scanline, for example, to manipulate the palette.
+   */
+  function BDR(row: number): void;
 
   /**
    * Allows you to read the status of one of the buttons attached to TIC. The function returns true if the key with the supplied id is currently in the pressed state. It remains true for as long as the key is held down. If you want to test if a key was just pressed, use btnp instead.
